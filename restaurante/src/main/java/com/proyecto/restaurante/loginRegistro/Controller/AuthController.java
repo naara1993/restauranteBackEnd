@@ -2,6 +2,7 @@
 package com.proyecto.restaurante.loginRegistro.Controller;
 
 
+import com.proyecto.restaurante.SendEmail.models.EnvioEmail;
 import com.proyecto.restaurante.loginRegistro.dto.JwtDto;
 import com.proyecto.restaurante.loginRegistro.dto.LoginUsuario;
 import com.proyecto.restaurante.loginRegistro.dto.Mensaje;
@@ -26,11 +27,15 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin
 public class AuthController {
 
     @Autowired
@@ -47,6 +52,10 @@ public class AuthController {
 
     @Autowired
     JwtProvider jwtProvider;
+    
+       
+    @Autowired
+    private EnvioEmail mailService;
 
     @PostMapping("/nuevo")
     public ResponseEntity<?> nuevo(@Valid @RequestBody NuevoUsuario nuevoUsuario, BindingResult bindingResult){
@@ -64,6 +73,8 @@ public class AuthController {
         if(nuevoUsuario.getRoles().contains("admin"))
             roles.add(rolService.getByRolNombre(RolNombre.ROLE_ADMIN).get());
         usuario.setRoles(roles);
+        mailService.sendEmail(nuevoUsuario.getEmail(),"Datos de acceso","{"
+                + "nombre usuario:"+nuevoUsuario.getNombreUsuario()+" /n "+"contraseña : "+nuevoUsuario.getPassword()+"}");
         usuarioService.save(usuario);
         return new ResponseEntity(new Mensaje("usuario guardado"), HttpStatus.CREATED);
     }
@@ -82,4 +93,47 @@ public class AuthController {
     }
     
    
+    
+    
+        //mostrar por id
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<Usuario> getById(@PathVariable("id") Integer id){
+        if(!usuarioService.findId(id))  // si no existe el id
+            return new ResponseEntity(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
+        Usuario usuario = usuarioService.findById(id).get();
+        return new ResponseEntity(usuario, HttpStatus.OK);
+    }
+    
+        
+    @GetMapping("/detailName/{nombreUsuario}")
+    public ResponseEntity<Usuario> getByName(@PathVariable("nombreUsuario") String nombreUsuario){
+        if(!usuarioService.existsByNombreUsuario(nombreUsuario))  // si no existe el id
+            return new ResponseEntity(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
+          Optional<Usuario> optionalUsuario = usuarioService.getByNombreUsuario(nombreUsuario);
+          Usuario user=new Usuario();
+          user=optionalUsuario.get();
+        return new ResponseEntity(user, HttpStatus.OK);
+    }
+    
+    
+    
+    
+    
+    
+          
+      //mostrar lista
+    @GetMapping("/lista")
+    public ResponseEntity<List<Usuario>> list(){
+        List<Usuario> list = usuarioService.list();
+        return new ResponseEntity(list, HttpStatus.OK);
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }

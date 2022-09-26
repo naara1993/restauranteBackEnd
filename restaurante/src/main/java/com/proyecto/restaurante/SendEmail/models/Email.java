@@ -1,21 +1,26 @@
 
-package com.proyecto.restaurante.loginRegistro.dto;
+package com.proyecto.restaurante.SendEmail.models;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import java.util.HashSet;
-import java.util.Set;
 
-public class NuevoUsuario {
-    @NotBlank
+
+public class Email {
+    
+
     private String nombre;
-    @NotBlank
     private String nombreUsuario;
-    @Email
     private String email;
-    @NotBlank
     private String password;
-    private Set<String> roles = new HashSet<>();
+
+
+
+    public Email(String nombre, String nombreUsuario, String email, String password) {
+        this.nombre = nombre;
+        this.nombreUsuario = nombreUsuario;
+        this.email = email;
+        this.password = password;
+    }
+
+
 
     public String getNombre() {
         return nombre;
@@ -49,18 +54,11 @@ public class NuevoUsuario {
         this.password = password;
     }
 
-    public Set<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<String> roles) {
-        this.roles = roles;
-    }
-
     @Override
     public String toString() {
-        return "NuevoUsuario{" + "nombre=" + nombre + ", nombreUsuario=" + nombreUsuario + ", email=" + email + ", password=" + password + ", roles=" + roles + '}';
+        return "Email{" + "nombre=" + nombre + ", nombreUsuario=" + nombreUsuario + ", email=" + email + ", password=" + password + '}';
     }
+ 
     
     
 }

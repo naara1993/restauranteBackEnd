@@ -7,6 +7,7 @@ package com.proyecto.restaurante.loginRegistro.service;
 
 import com.proyecto.restaurante.loginRegistro.modelos.Usuario;
 import com.proyecto.restaurante.loginRegistro.repository.UsuarioRepository;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,9 @@ public class UsuarioService {
         return usuarioRepository.findByNombreUsuario(nombreUsuario);
     }
 
+ 
+    
+    
     public boolean existsByNombreUsuario(String nombreUsuario){
         return usuarioRepository.existsByNombreUsuario(nombreUsuario);
     }
@@ -35,5 +39,19 @@ public class UsuarioService {
 
     public void save(Usuario usuario){
         usuarioRepository.save(usuario);
+    }
+
+    public boolean findId(Integer id) {
+      return usuarioRepository.existsById(id);
+    
+    }
+  
+    public Optional<Usuario> findById(Integer id) {
+      return usuarioRepository.findById(id);
+    
+    }
+
+    public List<Usuario> list() {
+      return usuarioRepository.findAll();
     }
 }

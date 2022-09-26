@@ -9,6 +9,8 @@ public class Mensaje {
         this.mensaje = mensaje;
     }
 
+
+
     public String getMensaje() {
         return mensaje;
     }
