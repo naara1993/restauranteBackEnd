@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -149,14 +150,7 @@ public class ControllerPedidos {
     }
 
     
-    
-    
-    
-    
-    
-    
-    
-    
+     
    @GetMapping("/lista")
     public ResponseEntity<List<OrdenDetalle>> list() {
         List<OrdenDetalle> list = ordenDetalleService.list();
@@ -185,15 +179,43 @@ public class ControllerPedidos {
     }
                 
 
+ 
+                
+    
     @GetMapping("/lis")
     public ResponseEntity<OrdenDetalle>  addlist() {
             
             return new ResponseEntity(detalles, HttpStatus.OK);
     }
         
+           @GetMapping("/l")
+    public ResponseEntity<OrdenDetalle>  l() {
+            List<OrdenDetalle> deta = new ArrayList<OrdenDetalle>();
+            deta=ordenDetalleService.list();
+            return new ResponseEntity(deta, HttpStatus.OK);
+    }
         
         
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id")int id){
+        if(!ordenService.existsById(id))
+            return new ResponseEntity(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
         
+       
+            List<OrdenDetalle> deta = new ArrayList<OrdenDetalle>();
+            deta=ordenDetalleService.list();
+         Orden o=new Orden();
+         o=ordenService.findById(id).get();
+     //   ordenService.delete(id);
+                 for(int i=0;i<deta.size();i++){
+                       OrdenDetalle d= deta.get(i);
+           if(d.getOrden().getId()==o.getId()){
+               ordenDetalleService.delete(d.getId());
+         }
+         }
+                 ordenService.delete(id);
+        return new ResponseEntity(new Mensaje(" eliminado"), HttpStatus.OK);
+    }
         
         
         
