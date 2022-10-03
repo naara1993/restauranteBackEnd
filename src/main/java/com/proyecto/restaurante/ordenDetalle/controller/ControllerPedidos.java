@@ -105,7 +105,7 @@ public class ControllerPedidos {
         double sumaTotal = 0;
         sumaTotal = detalles.stream().mapToDouble(dt -> dt.getTotal()).sum();
         orden.setTotal(sumaTotal);
-        return new ResponseEntity(new Mensaje("elemento eliminado del menu"), HttpStatus.OK);
+        return new ResponseEntity(new Mensaje("elemento eliminado"), HttpStatus.OK);
     }
     
     
@@ -134,7 +134,7 @@ public class ControllerPedidos {
         orden.setUsuario(user);
         orden.setTipoPago(pago);
         orden.setNombre("menu");
-        orden.setEstado("pendiente");
+        orden.setEstado("");
         ordenService.save(orden);
       orden.setEnvio(envio);
       orden.setCostoEnvio(costoEnvio);

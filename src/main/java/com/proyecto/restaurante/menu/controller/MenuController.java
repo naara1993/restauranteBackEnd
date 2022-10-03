@@ -84,7 +84,7 @@ public class MenuController {
         if(!menuService.existsById(id))
             return new ResponseEntity(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
         menuService.delete(id);
-        return new ResponseEntity(new Mensaje("persona eliminada"), HttpStatus.OK);
+        return new ResponseEntity(new Mensaje("menu eliminado"), HttpStatus.OK);
     }
     
     //actualizar persona
