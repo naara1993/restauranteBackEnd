@@ -1,9 +1,12 @@
 
 package com.proyecto.restaurante.ordenDetalle.controller;
 
+import com.proyecto.restaurante.SendEmail.models.EnvioEmail;
 import com.proyecto.restaurante.loginRegistro.dto.Mensaje;
+import com.proyecto.restaurante.loginRegistro.dto.NuevoUsuario;
 import com.proyecto.restaurante.loginRegistro.modelos.Usuario;
 import com.proyecto.restaurante.loginRegistro.service.UsuarioService;
+import com.proyecto.restaurante.menu.modelDTO.MenuDTO;
 import com.proyecto.restaurante.menu.models.Menu;
 import com.proyecto.restaurante.menu.service.MenuServicio;
 import com.proyecto.restaurante.ordenDetalle.models.Orden;
@@ -24,14 +27,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+@CrossOrigin
 @RestController
 @RequestMapping("/gestionPedidos")
-@CrossOrigin(origins = "*")
 public class ControllerPedidos {
     
     
@@ -46,6 +49,8 @@ public class ControllerPedidos {
     private OrdenDetalleService ordenDetalleService;
     @Autowired
     private UsuarioService usuario;
+      @Autowired
+    private EnvioEmail mailService;
 
 
     
@@ -120,8 +125,8 @@ public class ControllerPedidos {
     
     
     // guardar la orden 
-    @GetMapping("/save/{id}/{pago}")
-    public ResponseEntity<List<Orden>> saveOrder(@PathVariable("id") Integer id,@PathVariable("pago") String pago) {
+    @GetMapping("/save/{id}/{pago}/{envio}/{costoEnvio}/{telefono}/{domicilio}")
+    public ResponseEntity<List<Orden>> saveOrder(@PathVariable("id") Integer id,@PathVariable("pago") String pago,@PathVariable("envio") boolean envio,@PathVariable("costoEnvio") int costoEnvio,@PathVariable("telefono") int telefono,@PathVariable("domicilio") String domicilio) {
         Date fechaCreacion = new Date();
         orden.setFechaCreacion(fechaCreacion);
         orden.setNumero(ordenService.generarNumeroOrden());
@@ -129,9 +134,15 @@ public class ControllerPedidos {
         orden.setUsuario(user);
         orden.setTipoPago(pago);
         orden.setNombre("menu");
+        orden.setEstado("pendiente");
         ordenService.save(orden);
-     
-        
+      orden.setEnvio(envio);
+      orden.setCostoEnvio(costoEnvio);
+      orden.setNumeroTelefono(telefono);
+      orden.setDireccion(domicilio);
+        double sumaTotal = 0;
+        sumaTotal = detalles.stream().mapToDouble(dt -> dt.getTotal()).sum();
+        orden.setTotal(sumaTotal+costoEnvio);
         List<Orden> lista = new ArrayList<>();
         lista=ordenService.findByUsuario(user);     
         //guardar detalles
@@ -196,8 +207,8 @@ public class ControllerPedidos {
     }
         
         
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id")int id){
+    @DeleteMapping("/delete/{id}/{Id}")
+    public ResponseEntity<?> delete(@PathVariable("id")int id,@PathVariable("Id")int Id){
         if(!ordenService.existsById(id))
             return new ResponseEntity(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
         
@@ -213,10 +224,28 @@ public class ControllerPedidos {
                ordenDetalleService.delete(d.getId());
          }
          }
-                 ordenService.delete(id);
+                        Usuario us = usuario.findById(Id).get();
+         ordenService.delete(id);
+         mailService.sendEmail(us.getEmail(),"Orden cancelada","disculpe las molestias");
         return new ResponseEntity(new Mensaje(" eliminado"), HttpStatus.OK);
     }
         
+    
         
+       
+       @PutMapping("/orden/{id}")
+    public ResponseEntity<?> orden(@PathVariable("id")int id,@RequestBody  Orden ord){
+        if(!ordenService.existsById(id))
+            return new ResponseEntity(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
+              if(ord.getEstado()==null ||ord.getEstado()==""){
+                   return new ResponseEntity(new Mensaje(" el estado no debe estar vacio"), HttpStatus.BAD_REQUEST);
+              }
+    Orden  o=ordenService.findById(id).get();
+      o.setEstado(ord.getEstado());
+      ordenService.save(o);
+        return new ResponseEntity(o, HttpStatus.OK);
+    }
         
+    
+      
 }

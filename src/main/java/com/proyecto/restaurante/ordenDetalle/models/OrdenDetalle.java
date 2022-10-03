@@ -16,12 +16,13 @@ public class OrdenDetalle implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
     private double cantidad;
     private double precio;
     private double total;
     private String nombre;
     private String imagen;
+
+    
  
     @ManyToOne
     @JoinColumn(name="id_orden")
@@ -112,6 +113,8 @@ public class OrdenDetalle implements Serializable {
     public void setImagen(String imagen) {
         this.imagen = imagen;
     }
+
+
 
 
 

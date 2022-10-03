@@ -28,7 +28,39 @@ public class Orden implements Serializable {
     private String tipoPago;
     private double total;
     private String nombre;
+    private String estado;
+    
+    private int costoEnvio;
+    private boolean envio;
+    
+    private int numeroTelefono;
+    private String direccion;
 
+    public int getNumeroTelefono() {
+        return numeroTelefono;
+    }
+
+    public void setNumeroTelefono(int numeroTelefono) {
+        this.numeroTelefono = numeroTelefono;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    
     @OneToMany(mappedBy = "orden")
     @JsonIgnore
     private List<OrdenDetalle> detalle;
@@ -134,6 +166,22 @@ public class Orden implements Serializable {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public int getCostoEnvio() {
+        return costoEnvio;
+    }
+
+    public void setCostoEnvio(int costoEnvio) {
+        this.costoEnvio = costoEnvio;
+    }
+
+    public boolean Envio() {
+        return envio;
+    }
+
+    public void setEnvio(boolean envio) {
+        this.envio = envio;
     }
     
     
