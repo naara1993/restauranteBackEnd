@@ -1,4 +1,3 @@
-
 package com.proyecto.restaurante.ordenDetalle.controller;
 
 import com.proyecto.restaurante.SendEmail.models.EnvioEmail;
@@ -32,15 +31,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 @CrossOrigin
 @RestController
 @RequestMapping("/gestionPedidos")
 public class ControllerPedidos {
-    
-    
-    
-    
-    
+
     @Autowired
     private MenuServicio menu;
     @Autowired
@@ -49,55 +45,46 @@ public class ControllerPedidos {
     private OrdenDetalleService ordenDetalleService;
     @Autowired
     private UsuarioService usuario;
-      @Autowired
+    @Autowired
     private EnvioEmail mailService;
 
-
-    
     private double sum;
 
+    List<OrdenDetalle> detalles = new ArrayList<OrdenDetalle>();
 
-	List<OrdenDetalle> detalles = new ArrayList<OrdenDetalle>();
-
-
-	Orden orden = new Orden();
-        
+    Orden orden = new Orden();
 
     @PostMapping("/cart/{id}/{cantidad}")
-    public ResponseEntity<OrdenDetalle>  addCart(@PathVariable int id,@PathVariable Integer cantidad) {
+    public ResponseEntity<OrdenDetalle> addCart(@PathVariable int id, @PathVariable Integer cantidad) {
         double sumaTotal = 0;
-          OrdenDetalle detalleOrden=new OrdenDetalle(); 
-            Menu men = menu.get(id).get();
-  //          Optional<Menu> optionalProducto = menu.get(Id);
-   //         men = optionalProducto.get();
-            detalleOrden.setCantidad(cantidad);
-            detalleOrden.setNombre(men.getTitle());
-            detalleOrden.setImagen(men.getImage());
-            detalleOrden.setPrecio(men.getPrice());
-            detalleOrden.setTotal(men.getPrice() * cantidad);
-            detalleOrden.setMenu(men);  
-            int idMenu = men.getId();
-            boolean ingresado = detalles.stream().anyMatch(p -> p.getMenu().getId() == idMenu);
-            if (!ingresado) {
-                detalles.add(detalleOrden);
-            }  
-            sumaTotal = detalles.stream().mapToDouble(dt -> dt.getTotal()).sum();
-            orden.setTotal(sumaTotal);
-           orden.setNombre(men.getTitle());
-          //  ordenDetalleService.save(detalles);
-            return new ResponseEntity(detalles, HttpStatus.OK);
-    }  
-        
-    
-    
-    
-    
+        OrdenDetalle detalleOrden = new OrdenDetalle();
+        Menu men = menu.get(id).get();
+        //          Optional<Menu> optionalProducto = menu.get(Id);
+        //         men = optionalProducto.get();
+        detalleOrden.setCantidad(cantidad);
+        detalleOrden.setNombre(men.getTitle());
+        detalleOrden.setImagen(men.getImage());
+        detalleOrden.setPrecio(men.getPrice());
+        detalleOrden.setTotal(men.getPrice() * cantidad);
+        detalleOrden.setMenu(men);
+        int idMenu = men.getId();
+        boolean ingresado = detalles.stream().anyMatch(p -> p.getMenu().getId() == idMenu);
+        if (!ingresado) {
+            detalles.add(detalleOrden);
+        }
+        sumaTotal = detalles.stream().mapToDouble(dt -> dt.getTotal()).sum();
+        orden.setTotal(sumaTotal);
+        orden.setNombre(men.getTitle());
+        //  ordenDetalleService.save(detalles);
+        return new ResponseEntity(detalles, HttpStatus.OK);
+    }
+
     // quitar un elemento del carrito productos
     @GetMapping("/delete/cart/{id}")
     public ResponseEntity<List<OrdenDetalle>> deleteProductoCart(@PathVariable("id") Integer id) {
         // lista nueva de prodcutos
         List<OrdenDetalle> ordenesNueva = new ArrayList<OrdenDetalle>();
-        detalles.stream().filter(detalleOrden -> (detalleOrden.getMenu().getId() != id )).forEachOrdered(detalleOrden -> {
+        detalles.stream().filter(detalleOrden -> (detalleOrden.getMenu().getId() != id)).forEachOrdered(detalleOrden -> {
             ordenesNueva.add(detalleOrden);
         });
         // poner la nueva lista con los elementos restantes
@@ -107,26 +94,17 @@ public class ControllerPedidos {
         orden.setTotal(sumaTotal);
         return new ResponseEntity(new Mensaje("elemento eliminado"), HttpStatus.OK);
     }
-    
-    
-        
-    
-   @GetMapping("/deleteList")
+
+    @GetMapping("/deleteList")
     public ResponseEntity<List<OrdenDetalle>> borrarLista() {
-          List<OrdenDetalle> ordenesNueva = new ArrayList<OrdenDetalle>();
-          detalles=ordenesNueva;
+        List<OrdenDetalle> ordenesNueva = new ArrayList<OrdenDetalle>();
+        detalles = ordenesNueva;
         return new ResponseEntity(detalles, HttpStatus.OK);
     }
-    
-    
-    
-    
-    
-    
-    
+
     // guardar la orden 
     @GetMapping("/save/{id}/{pago}/{envio}/{costoEnvio}/{telefono}/{domicilio}")
-    public ResponseEntity<List<Orden>> saveOrder(@PathVariable("id") Integer id,@PathVariable("pago") String pago,@PathVariable("envio") boolean envio,@PathVariable("costoEnvio") int costoEnvio,@PathVariable("telefono") int telefono,@PathVariable("domicilio") String domicilio) {
+    public ResponseEntity<List<Orden>> saveOrder(@PathVariable("id") Integer id, @PathVariable("pago") String pago, @PathVariable("envio") boolean envio, @PathVariable("costoEnvio") int costoEnvio, @PathVariable("telefono") int telefono, @PathVariable("domicilio") String domicilio) {
         Date fechaCreacion = new Date();
         orden.setFechaCreacion(fechaCreacion);
         orden.setNumero(ordenService.generarNumeroOrden());
@@ -135,117 +113,107 @@ public class ControllerPedidos {
         orden.setTipoPago(pago);
         orden.setNombre("menu");
         orden.setEstado("");
-        ordenService.save(orden);
-      orden.setEnvio(envio);
-      orden.setCostoEnvio(costoEnvio);
-      orden.setNumeroTelefono(telefono);
-      orden.setDireccion(domicilio);
+        orden.setEnvio(envio);
+        orden.setCostoEnvio(costoEnvio);
+        orden.setNumeroTelefono(telefono);
+        orden.setDireccion(domicilio);
         double sumaTotal = 0;
         sumaTotal = detalles.stream().mapToDouble(dt -> dt.getTotal()).sum();
-        orden.setTotal(sumaTotal+costoEnvio);
+        orden.setTotal(sumaTotal + costoEnvio);
+        ordenService.save(orden);    
         List<Orden> lista = new ArrayList<>();
-        lista=ordenService.findByUsuario(user);     
+        
+        lista = ordenService.findByUsuario(user);
+
         //guardar detalles
         detalles.stream().map(dt -> {
+            
             dt.setOrden(orden);
             return dt;
         }).forEachOrdered(dt -> {
             ordenDetalleService.save(dt);
         });
-        ///limpiar lista y orden
+          ///limpiar lista y orden
         orden = new Orden();
         detalles.clear();
+        mailService.sendEmail(user.getEmail(), "Su orden se genero con exito","Recibira mas novedades a la brevedad muchas gracias");
         return new ResponseEntity(new Mensaje("orden creada"), HttpStatus.OK);
 
-        
     }
 
-    
-     
-   @GetMapping("/lista")
+    @GetMapping("/lista")
     public ResponseEntity<List<OrdenDetalle>> list() {
         List<OrdenDetalle> list = ordenDetalleService.list();
         return new ResponseEntity(list, HttpStatus.OK);
     }
-    
-    
-  @GetMapping("/listaOrdenesUsuario/{id}")
+
+    @GetMapping("/listaOrdenesUsuario/{id}")
     public ResponseEntity<List<Orden>> listaOrdenesUser(@PathVariable("id") Integer id) {
-             Usuario user = usuario.findById(id).get();
-             List<Orden> list = ordenService.list();
-             for(int i=0;i<list.size();i++){
-                if(list.get(i).getUsuario().getId()==user.getId()){
-       return new ResponseEntity((list), HttpStatus.OK);
-                }
-             }
-        
-        return new ResponseEntity(new Mensaje("error"),HttpStatus.BAD_REQUEST);       
+        Usuario user = usuario.findById(id).get();
+        List<Orden> list = ordenService.list();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getUsuario().getId() == user.getId()) {
+                return new ResponseEntity((list), HttpStatus.OK);
+            }
+        }
+
+        return new ResponseEntity(new Mensaje("error"), HttpStatus.BAD_REQUEST);
     }
 
-        
-     @GetMapping("/listaOrden")
+    @GetMapping("/listaOrden")
     public ResponseEntity<List<Orden>> listOrden() {
         List<Orden> list = ordenService.list();
         return new ResponseEntity(list, HttpStatus.OK);
     }
-                
 
- 
-                
-    
     @GetMapping("/lis")
-    public ResponseEntity<OrdenDetalle>  addlist() {
-            
-            return new ResponseEntity(detalles, HttpStatus.OK);
+    public ResponseEntity<OrdenDetalle> addlist() {
+
+        return new ResponseEntity(detalles, HttpStatus.OK);
     }
-        
-           @GetMapping("/l")
-    public ResponseEntity<OrdenDetalle>  l() {
-            List<OrdenDetalle> deta = new ArrayList<OrdenDetalle>();
-            deta=ordenDetalleService.list();
-            return new ResponseEntity(deta, HttpStatus.OK);
+
+    @GetMapping("/l")
+    public ResponseEntity<OrdenDetalle> l() {
+        List<OrdenDetalle> deta = new ArrayList<OrdenDetalle>();
+        deta = ordenDetalleService.list();
+        return new ResponseEntity(deta, HttpStatus.OK);
     }
-        
-        
+
     @DeleteMapping("/delete/{id}/{Id}")
-    public ResponseEntity<?> delete(@PathVariable("id")int id,@PathVariable("Id")int Id){
-        if(!ordenService.existsById(id))
+    public ResponseEntity<?> delete(@PathVariable("id") int id, @PathVariable("Id") int Id) {
+        if (!ordenService.existsById(id)) {
             return new ResponseEntity(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
-        
-       
-            List<OrdenDetalle> deta = new ArrayList<OrdenDetalle>();
-            deta=ordenDetalleService.list();
-         Orden o=new Orden();
-         o=ordenService.findById(id).get();
-     //   ordenService.delete(id);
-                 for(int i=0;i<deta.size();i++){
-                       OrdenDetalle d= deta.get(i);
-           if(d.getOrden().getId()==o.getId()){
-               ordenDetalleService.delete(d.getId());
-         }
-         }
-                        Usuario us = usuario.findById(Id).get();
-         ordenService.delete(id);
-         mailService.sendEmail(us.getEmail(),"Orden cancelada","disculpe las molestias");
+        }
+
+        List<OrdenDetalle> deta = new ArrayList<OrdenDetalle>();
+        deta = ordenDetalleService.list();
+        Orden o = new Orden();
+        o = ordenService.findById(id).get();
+        //   ordenService.delete(id);
+        for (int i = 0; i < deta.size(); i++) {
+            OrdenDetalle d = deta.get(i);
+            if (d.getOrden().getId() == o.getId()) {
+                ordenDetalleService.delete(d.getId());
+            }
+        }
+        Usuario us = usuario.findById(Id).get();
+        ordenService.delete(id);
+        mailService.sendEmail(us.getEmail(), "Orden cancelada", "disculpe las molestias");
         return new ResponseEntity(new Mensaje(" eliminado"), HttpStatus.OK);
     }
-        
-    
-        
-       
-       @PutMapping("/orden/{id}")
-    public ResponseEntity<?> orden(@PathVariable("id")int id,@RequestBody  Orden ord){
-        if(!ordenService.existsById(id))
+
+    @PutMapping("/orden/{id}")
+    public ResponseEntity<?> orden(@PathVariable("id") int id, @RequestBody Orden ord) {
+        if (!ordenService.existsById(id)) {
             return new ResponseEntity(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
-              if(ord.getEstado()==null ||ord.getEstado()==""){
-                   return new ResponseEntity(new Mensaje(" el estado no debe estar vacio"), HttpStatus.BAD_REQUEST);
-              }
-    Orden  o=ordenService.findById(id).get();
-      o.setEstado(ord.getEstado());
-      ordenService.save(o);
+        }
+        if (ord.getEstado() == null || ord.getEstado() == "") {
+            return new ResponseEntity(new Mensaje(" el estado no debe estar vacio"), HttpStatus.BAD_REQUEST);
+        }
+        Orden o = ordenService.findById(id).get();
+        o.setEstado(ord.getEstado());
+        ordenService.save(o);
         return new ResponseEntity(o, HttpStatus.OK);
     }
-        
-    
-      
+
 }

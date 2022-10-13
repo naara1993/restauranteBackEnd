@@ -183,6 +183,11 @@ public class Orden implements Serializable {
     public void setEnvio(boolean envio) {
         this.envio = envio;
     }
+
+    @Override
+    public String toString() {
+        return "Orden{" + "id=" + id + ", numero=" + numero + ", fechaCreacion=" + fechaCreacion + ", fechaRecibida=" + fechaRecibida + ", tipoPago=" + tipoPago + ", total=" + total + ", nombre=" + nombre + ", estado=" + estado + ", costoEnvio=" + costoEnvio + ", envio=" + envio + ", numeroTelefono=" + numeroTelefono + ", direccion=" + direccion + ", detalle=" + detalle + ", usuario=" + usuario + '}';
+    }
     
     
 
